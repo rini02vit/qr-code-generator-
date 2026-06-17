@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickQR - Smart QR Code Generator</title>
+    <meta name="description" content="Generate high-quality QR codes instantly. Customize colors, size, and error correction. Download PNGs, keep a local history, and enjoy a dark/light glassmorphic UI.">
+    <!-- Google Fonts: Inter and Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Main Style Sheet -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Lucide Icons (Local) -->
+    <script src="lucide.min.js"></script>
+</head>
+<body class="dark-theme">
+    <!-- Visual background gradient shapes -->
+    <div class="bg-gradient-mesh"></div>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="header-logo">
+                <div class="logo-icon">
+                    <i data-lucide="qr-code"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>QuickQR</h1>
+                    <span class="logo-tagline">Smart QR Code Generator</span>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <button id="themeToggle" class="btn-theme-toggle" aria-label="Toggle Theme">
+                    <i data-lucide="sun" class="sun-icon"></i>
+                    <i data-lucide="moon" class="moon-icon"></i>
+                </button>
+            </div>
+        </header>
+        <!-- MAIN WORKSPACE -->
+        <main class="app-workspace">
+            <!-- INPUT & CUSTOMIZATION CONTROLS -->
+            <section class="card control-panel">
+                <div class="card-header">
+                    <h2><i data-lucide="settings"></i> Configuration</h2>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Text Area Input -->
+                    <div class="input-group">
+                        <label for="qrInput">Enter Text or URL</label>
+                        <div class="textarea-wrapper">
+                            <textarea id="qrInput" placeholder="Type or paste your link, text, or email here..." maxlength="1000"></textarea>
+                            <span id="charCount" class="char-counter">0 / 1000</span>
+                        </div>
+                        <div class="input-actions">
+                            <button id="copyInputBtn" class="btn-action" title="Copy Input text">
+                                <i data-lucide="copy"></i> Copy Input
+                            </button>
+                            <button id="resetBtn" class="btn-action btn-danger" title="Clear and Reset Options">
+                                <i data-lucide="rotate-ccw"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Customization Accordion/Section -->
+                    <div class="customization-options">
+                        <h3>Customization</h3>
+                        
+                        <!-- Color Pickers -->
+                        <div class="control-row">
+                            <div class="control-field">
+                                <label for="fgColor">QR Color (Dark)</label>
+                                <div class="color-picker-wrapper">
+                                    <input type="color" id="fgColor" value="#000000">
+                                    <span id="fgColorText" class="color-value-text">#000000</span>
+                                </div>
+                            </div>
+                            <div class="control-field">
+                                <label for="bgColor">Background (Light)</label>
+                                <div class="color-picker-wrapper">
+                                    <input type="color" id="bgColor" value="#FFFFFF">
+                                    <span id="bgColorText" class="color-value-text">#FFFFFF</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Dropdowns and sliders -->
+                        <div class="control-row">
+                            <div class="control-field">
+                                <label for="qrSize">Image Size</label>
+                                <select id="qrSize">
+                                    <option value="128">128 × 128 px</option>
+                                    <option value="256" selected>256 × 256 px</option>
+                                    <option value="512">512 × 512 px</option>
+                                    <option value="1024">1024 × 1024 px</option>
+                                </select>
+                            </div>
+                            <div class="control-field">
+                                <label for="qrEcc">Error Correction</label>
+                                <select id="qrEcc">
+                                    <option value="L">Low (7%)</option>
+                                    <option value="M" selected>Medium (15%)</option>
+                                    <option value="Q">Quartile (25%)</option>
+                                    <option value="H">High (30%)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- LIVE PREVIEW & DOWNLOAD -->
+            <section class="card preview-panel">
+                <div class="card-header">
+                    <h2><i data-lucide="eye"></i> Live Preview</h2>
+                </div>
+                
+                <div class="card-body preview-container">
+                    <!-- QR Code Canvas Display Container -->
+                    <div class="qr-display-box" id="qrDisplayBox">
+                        <canvas id="qrCanvas"></canvas>
+                        <!-- Interactive Empty State Placeholder -->
+                        <div id="previewPlaceholder" class="preview-placeholder">
+                            <div class="placeholder-icon">
+                                <i data-lucide="qr-code"></i>
+                            </div>
+                            <p>Your QR code will appear here instantly as you type</p>
+                        </div>
+                    </div>
+                    <!-- Download Trigger Button -->
+                    <button id="downloadBtn" class="btn-download disabled" disabled>
+                        <i data-lucide="download"></i> Download PNG
+                    </button>
+                </div>
+            </section>
+        </main>
+        <!-- HISTORY SECTION -->
+        <section class="card history-panel">
+            <div class="history-header">
+                <h2><i data-lucide="history"></i> Recent QR Codes</h2>
+                <button id="clearHistoryBtn" class="btn-action btn-danger-outline" title="Clear all saved history">
+                    <i data-lucide="trash-2"></i> Clear History
+                </button>
+            </div>
+            
+            <div id="historyGrid" class="history-grid">
+                <!-- History items will be injected here via JavaScript -->
+                <div class="history-empty-state" id="historyEmptyState">
+                    <i data-lucide="folder-open"></i>
+                    <p>No recent QR codes. Generated codes will appear here (max 5).</p>
+                </div>
+            </div>
+        </section>
+        <!-- FOOTER -->
+        <footer class="app-footer">
+            <div class="footer-info">
+                <p>Designed and built for portfolios and real-world deployment.</p>
+                <div class="user-placeholders">
+                    <span>Developer: <strong>[RAKSHITA SRIVASTAVA]</strong></span>
+                    <span class="separator">|</span>
+                    <span>Contact: <strong>[raksriv0207@gmail.com]</strong></span>
+                </div>
+            </div>
+            <div class="footer-cta">
+                <a href="https://digitalheroesco.com" target="_blank" rel="noopener noreferrer" class="btn-digital-heroes">
+                    <span>Built for Digital Heroes</span>
+                    <i data-lucide="external-link"></i>
+                </a>
+            </div>
+        </footer>
+    </div>
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toastContainer" class="toast-container"></div>
+    <!-- QR Code Library (Local) -->
+    <script src="qrcode.min.js"></script>
+    <!-- Main Script -->
+    <script src="script.js"></script>
+</body>
+</html>
